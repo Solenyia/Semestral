@@ -5,6 +5,7 @@
 
 int main(void){
 
+    int i = 0;
     char *fname;
     char *message;
     FILE *fptr;
@@ -31,7 +32,7 @@ int main(void){
     fgets(message, MAX_MSG_SIZE, stdin);
     message[strcspn(message, "\n")] = '\0';         // remove newline character
     message = realloc(message, strlen(message) + 1);
-    fprintf(fptr, "%s", message);
+    fwrite(message, sizeof(char), strlen(message), fptr);
     
     // cleanup
     fclose(fptr);
