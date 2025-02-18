@@ -1,17 +1,25 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 int main(void){
 
-    size_t input_size = 0;
-    char* input_line = NULL;
+    char *s;
+    s = malloc(1024 * sizeof(char));    // allocate memory for 1024 characters
+    
+    // filename logic
+    printf("Enter filename: ");
+    scanf("%s", s);
+    s = realloc(s, strlen(s) + 1);      // reallocate memory to fit the exact number of characters
+    printf("%s\n", s);
 
-    if (getline(&input_line, &input_size, stdin) == -1) {
-        free(input_line);
-        perror("Failed to read input");
-        return 0;
-    }
+    // message logic
+    printf("Enter message: ");
+    scanf("%s", s);
+    s = realloc(s, strlen(s) + 1);
+    printf("%s\n", s);
 
-    printf("Got input: '%s'\n", input_line);
-    free(input_line);
+    free(s);
+
+    return 0;
 }
