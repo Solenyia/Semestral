@@ -8,23 +8,20 @@
 
 int main(void){
 
-    int i = 0;
-    char *fname;
-    char *message;
-    FILE *fptr;
-    fname = malloc(1024 * sizeof(char));    // allocate memory for 1024 characters
-    
-    // filename logic
+    char* fname;
+    char* message;
+
     printf("Enter filename: ");
     scanf("%s", fname);
-    fname = realloc(fname, strlen(fname) + 1);      // reallocate memory to fit the exact number of characters
-    fptr = fopen(fname, "w");
-    if (fptr == NULL) {
+    fname = realloc(fname, strlen(fname) + 1);
+
+    int fw = open(fname, O_WRONLY | O_CREAT);
+    if(fw == -1){
         perror("Error opening file");
         free(fname);
         return 1;
     }
-    
+
     // clear input buffer
     int c;
     while ((c = getchar()) != '\n' && c != EOF);
@@ -35,12 +32,10 @@ int main(void){
     fgets(message, MAX_MSG_SIZE, stdin);
     message[strcspn(message, "\n")] = '\0';         // remove newline character
     message = realloc(message, strlen(message) + 1);
-    fwrite(message, sizeof(char), strlen(message), fptr);
-    
+    write(fw, message, strlen(message));
+
     // cleanup
-    fclose(fptr);
     free(message);
     free(fname);
-
-    return 0;
+    close(fw);
 }
