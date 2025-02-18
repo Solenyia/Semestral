@@ -1,25 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "settings.h"
 
 int main(void){
 
-    char *s;
-    s = malloc(1024 * sizeof(char));    // allocate memory for 1024 characters
+    char *fname;
+    char *message;
+    FILE *fptr;
+    fname = malloc(1024 * sizeof(char));    // allocate memory for 1024 characters
     
     // filename logic
     printf("Enter filename: ");
-    scanf("%s", s);
-    s = realloc(s, strlen(s) + 1);      // reallocate memory to fit the exact number of characters
-    printf("%s\n", s);
+    scanf("%s", fname);
+    fname = realloc(fname, strlen(fname) + 1);      // reallocate memory to fit the exact number of characters
+    fptr = fopen(fname, "w");
+    if (fptr == NULL) {
+        perror("Error opening file");
+        free(fname);
+        return 1;
+    }
+    
+    // clear input buffer
+    int c;
+    while ((c = getchar()) != '\n' && c != EOF);
 
     // message logic
+    message = malloc(1024 * sizeof(char));
     printf("Enter message: ");
-    scanf("%s", s);
-    s = realloc(s, strlen(s) + 1);
-    printf("%s\n", s);
-
-    free(s);
+    fgets(message, MAX_MSG_SIZE, stdin);
+    message[strcspn(message, "\n")] = '\0';         // remove newline character
+    message = realloc(message, strlen(message) + 1);
+    fprintf(fptr, "%s", message);
+    
+    // cleanup
+    fclose(fptr);
+    free(message);
+    free(fname);
 
     return 0;
 }
