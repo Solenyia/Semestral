@@ -15,7 +15,7 @@ int main(void){
     scanf("%s", fname);
     fname = realloc(fname, strlen(fname) + 1);
 
-    int fw = open(fname, O_WRONLY | O_CREAT);
+    int fw = open(fname, O_WRONLY | O_APPEND | O_CREAT);
     if(fw == -1){
         perror("Error opening file");
         free(fname);
@@ -31,7 +31,8 @@ int main(void){
     printf("Enter message: ");
     fgets(message, MAX_MSG_SIZE, stdin);
     message[strcspn(message, "\n")] = '\0';         // remove newline character
-    message = realloc(message, strlen(message) + 1);
+    message = realloc(message, strlen(message) + 2);
+    strcat(message, "\n");
     write(fw, message, strlen(message));
 
     // cleanup

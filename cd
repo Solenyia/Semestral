@@ -1,0 +1,1 @@
+cd "c:\Users\marti\OneDrive\Poü°taü\FEI\Semester_4\IPv6\Semestral\" ; if ($?) { gcc E1.c -o E1 } ; if ($?) { .\E1 }
