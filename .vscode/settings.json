@@ -60,6 +60,7 @@
     "cstdlib": "c",
     "fcntl.h": "c",
     "crtdefs.h": "c",
-    "stat.h": "c"
+    "stat.h": "c",
+    "stdio.h": "c"
   }
 }
