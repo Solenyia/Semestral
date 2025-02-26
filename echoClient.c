@@ -45,24 +45,38 @@ int main( int argc, const char *argv[] ){
    atexit( cleanup ) ;
    
    //create unnamed socket
+
+   _runSafe( Sock_fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ) ;
    
    //set server socket name
+
+   memset( &address, 0, sizeof( address ) ) ;
+   address.sun_family = AF_UNIX ;
+   strncpy( address.sun_path, argv[1], sizeof( address.sun_path ) - 1 ) ;
    
    //connect to server
 
-
-   printf("client sending message:%s\n", Buff ) ;
+   _runSafe(result = connect(Sock_fd, (struct sockaddr *)&address, sizeof(address)));
+   
    //write to socket
 
+   printf("client enter message:") ;
+   fgets( Buff, MAX_MSG_SIZE, stdin);
+   Buff[ strlen( Buff ) - 1 ] = '\0' ;
+
+   _runSafe(len = write(Sock_fd, Buff, strlen(Buff)));
+   printf("client sending message:%s\n", Buff ) ;
+
    //read answer from socket
-   
+   _runSafe(len = read(Sock_fd, Fubb, MAX_MSG_SIZE -1));
+
    //show server reply to user
-	printf("client received reply from server:%s\n", Fubb ) ;
+   printf("client received reply from server:%s\n", Fubb ) ;
    
    //close connection
 	close( Sock_fd ) ;
 	Sock_fd = -1 ;
      
 	return 0 ; 
-    
 }
+
