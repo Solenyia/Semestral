@@ -15,7 +15,9 @@
 #include <stdlib.h>
 #include <sys/un.h>
 #include <unistd.h>
+#include <arpa/inet.h>
 #include <ctype.h>
+#include <netinet/in.h>
 #include "settings.h"
 
 char Buff[ MAX_MSG_SIZE ] ;
@@ -50,45 +52,46 @@ int main( int argc, const char *argv[] ){
 	int len ;
 	int client_len ;
 	
-  //local sockets
-	struct sockaddr_un server_address ;         
-	struct sockaddr_un client_address ;         
+	struct sockaddr_in server_address ;         
+	struct sockaddr_in client_address ;       
+	
 	
 	if( argc < 2 ){
    		printf("server error: no socket name specified.") ;
    		return 1 ;
-   }
-   atexit( cleanup ) ;
+   	}
+   	atexit(cleanup);
 	
 	//remove old sockets with same name as specified
 	unlink( argv[1] ) ;
 	
 	//create socket
- 	_runSafe(server_sockfd = socket( AF_LOCAL, SOCK_STREAM, 0 ));
+ 	_runSafe(server_sockfd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ));
+	 memset( &server_address, 0, sizeof( server_address ) ) ;
+	 server_address.sin_family = AF_INET ;
+	 server_address.sin_port =  htons(5000) ;
 	
-	//bind a name to socket
-	memset( &server_address, 0, sizeof( server_address ) ) ;
-	server_address.sun_family = AF_UNIX ;
-	strncpy( server_address.sun_path, argv[1], sizeof( server_address.sun_path ) - 1 ) ;
+	inet_pton(AF_INET, argv[1], &server_address.sin_addr);
 
-	    
+	//bind a name to socket
+	_runSafe(bind( server_sockfd, (struct sockaddr *)&server_address, sizeof( server_address ) ))
+
 	//start listening on the named socket
-	_runSafe(bind( server_sockfd, (struct sockaddr *)&server_address, sizeof( server_address ) ) == -1)
+	listen( server_sockfd, 5 ) ;
 
 	while( 1 ) {
 
 		printf("Server waiting.\n") ;
 		
 		//accept incomming client connection
-		listen( server_sockfd, 5 ) ;
 		client_len = sizeof( client_address ) ;
+		_runSafe(client_sockfd = accept( server_sockfd, (struct sockaddr *)&client_address, &client_len ));
 		
 		//read message from client
-		_runSafe(client_sockfd = accept( server_sockfd, (struct sockaddr *)&client_address, &client_len ));
+		_runSafe(len = read( client_sockfd, Buff, MAX_MSG_SIZE - 1 ));
+		Buff[ len ] = '\0';
 
 		//convert client's message to upper case and reply to client
-		_runSafe(len = read( client_sockfd, Buff, MAX_MSG_SIZE - 1 ));
-		Buff[ len ] = '\0' ;
 		printf("server received message:%s\n",Buff);
 		len = strToUpper( Buff, len ) ;
 		printf("server sending reply:%s\n",Buff);

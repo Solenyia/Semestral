@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/un.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 #include <unistd.h>
 #include "settings.h"
 
@@ -34,7 +36,7 @@ int main( int argc, const char *argv[] ){
    
    
    int len ;
-   struct sockaddr_un address ;    //this is for local sockets
+   struct sockaddr_in address ;    //this is for local sockets
    int result ;
 
    
@@ -46,13 +48,14 @@ int main( int argc, const char *argv[] ){
    
    //create unnamed socket
 
-   _runSafe( Sock_fd = socket( AF_UNIX, SOCK_STREAM, 0 ) ) ;
+   _runSafe( Sock_fd = socket( AF_INET, SOCK_STREAM, IPPROTO_TCP ) ) ;
    
    //set server socket name
 
    memset( &address, 0, sizeof( address ) ) ;
-   address.sun_family = AF_UNIX ;
-   strncpy( address.sun_path, argv[1], sizeof( address.sun_path ) - 1 ) ;
+   address.sin_family = AF_INET ;
+   address.sin_port = htons(5000) ;
+   inet_pton(AF_INET, argv[1], &address.sin_addr);
    
    //connect to server
 
